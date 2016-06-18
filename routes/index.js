@@ -1,6 +1,23 @@
 var crypto = require('crypto');
 var User = require('../models/user.js');
 var Post = require('../models/post.js');
+
+
+var multer  = require('multer');
+//新的使用方法配置multer
+var storage = multer.diskStorage({
+    destination: function (req, file, cb){
+        cb(null, './public/images')
+    },
+    filename: function (req, file, cb){
+        cb(null, file.originalname)
+    }
+});
+var upload = multer({
+    storage: storage
+});
+
+
 //如果没有登录，是无法访问发表和退出页面的
 function checkLogin(req, res, next) {
     if (!req.session.user) {
@@ -143,4 +160,19 @@ module.exports = function(app){
         res.redirect('/');//登出成功后跳转到主页
 
     })
+    //上传
+    app.get('/upload', checkLogin);
+    app.get('/upload', function (req, res) {
+        res.render('upload', {
+            title: '文件上传',
+            user: req.session.user,
+            success: req.flash('success').toString(),
+            error: req.flash('error').toString()
+        });
+    });
+    app.post('/upload', checkLogin);
+    app.post('/upload', upload.array('field1', 5), function (req, res) {
+        req.flash('success', '文件上传成功!');
+        res.redirect('/upload');
+    });
 }
