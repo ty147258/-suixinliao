@@ -26,11 +26,12 @@ Post.prototype.save = function(callback){
     }
     //整理下要存入数据库的数据
     var post = {
-        name:this.name,
-        time:time,
+        name: this.name,
+        time: time,
         title:this.title,
-        post:this.post
-    }
+        post: this.post,
+        comments: []
+    };
     //打开数据库
     mongodb.open(function(err,db){
         if(err){
@@ -108,8 +109,13 @@ Post.getOne = function(name, day, title, callback) {
                 if (err) {
                     return callback(err);
                 }
-                //解析 markdown 为 html
-                doc.post = markdown.toHTML(doc.post);
+                //修改为循环留言内容
+                if (doc) {
+                    doc.post = markdown.toHTML(doc.post);
+                    doc.comments.forEach(function (comment) {
+                        comment.content = markdown.toHTML(comment.content);
+                    });
+                }
                 callback(null, doc);//返回查询的一篇文章
             });
         });
