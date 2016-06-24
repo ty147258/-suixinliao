@@ -29,10 +29,11 @@ Post.prototype.save = function(callback){
     var post = {
         name: this.name,
         time: time,
-        title: this.title,
+        title:this.title,
         tags: this.tags,
         post: this.post,
-        comments: []
+        comments: [],
+        pv: 0
     };
     //打开数据库
     mongodb.open(function(err,db){
@@ -115,18 +116,31 @@ Post.getOne = function(name, day, title, callback) {
                 "time.day": day,
                 "title": title
             }, function (err, doc) {
-                mongodb.close();
                 if (err) {
+                    mongodb.close();
                     return callback(err);
                 }
-                //修改为循环留言内容
                 if (doc) {
+                    //每访问 1 次，pv 值增加 1
+                    collection.update({
+                        "name": name,
+                        "time.day": day,
+                        "title": title
+                    }, {
+                        $inc: {"pv": 1}
+                    }, function (err) {
+                        mongodb.close();
+                        if (err) {
+                            return callback(err);
+                        }
+                    });
+                    //解析 markdown 为 html
                     doc.post = markdown.toHTML(doc.post);
                     doc.comments.forEach(function (comment) {
                         comment.content = markdown.toHTML(comment.content);
                     });
+                    callback(null, doc);//返回查询的一篇文章
                 }
-                callback(null, doc);//返回查询的一篇文章
             });
         });
     });
