@@ -30,6 +30,7 @@ app.use(session({
     }),
     resave:false,
     saveUninitialized:true
+    //我是注释
 }));
 
 // 设置views文件夹为存放视图文件的目录
