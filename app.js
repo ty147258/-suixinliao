@@ -6,11 +6,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 //路由文件引入进来
 var routes = require('./routes/index');
-//数据库配置文件信息
+//数据库配置文件信息撒地方
 var settings = require('./settings');
 //flash模块
 var flash = require('connect-flash');
-//支持会话
+//支持会话地方
 var session = require('express-session');
 //将会话保存在mongodb当中去.
 var MongoStore  = require('connect-mongo')(session);
